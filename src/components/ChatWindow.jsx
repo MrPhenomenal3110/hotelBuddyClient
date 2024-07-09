@@ -1,12 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Message from './Message';
 import sendMessage from '../services/sendMessage.js';
 
-const ChatWindow = ({ messages, setMessages }) => {
+const ChatWindow = ({ threadId, messages, setMessages }) => {
   const [userInput, setUserInput] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    // Scroll to the bottom of the messages container
+    scrollToBottom();
+  }, [messages]); // Trigger effect whenever messages change
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   let id = 1;
+
   const handleSend = async () => {
     if (userInput.trim()) {
       const newMessage = {
@@ -21,7 +32,11 @@ const ChatWindow = ({ messages, setMessages }) => {
       setIsSending(true);
 
       try {
-        const response = await sendMessage(userInput);
+        if (!threadId) {
+          throw new Error('Thread ID is not available.');
+        }
+
+        const response = await sendMessage(userInput, threadId);
         setMessages(response);
       } catch (error) {
         console.error('Error sending message:', error);
@@ -33,18 +48,19 @@ const ChatWindow = ({ messages, setMessages }) => {
   };
 
   return (
-      <div className="w-full relative top-[8vh] flex flex-col h-[83vh] overflow-y-auto flex-1">
-        {messages.map((msg) => (
-          msg.role === 'user' ?
-          <div className="p-4 h-fit self-end">
-            <Message key={msg.id} text={msg.message} sender={msg.role} />
+    <div className="w-full relative top-[8vh] flex flex-col h-[83vh] overflow-y-auto flex-1">
+      {messages.map((msg) => (
+        msg.role === 'user' ? (
+          <div className="p-4 h-fit self-end" key={msg.id}>
+            <Message text={msg.message} sender={msg.role} />
           </div>
-          :
-          <div className="p-4 h-fit self-start">
-            <Message key={msg.id} text={msg.message} sender={msg.role} />
+        ) : (
+          <div className="p-4 h-fit self-start" key={msg.id}>
+            <Message text={msg.message} sender={msg.role} />
           </div>
-          
-        ))}
+        )
+      ))}
+      <div ref={messagesEndRef} /> {/* Ref to scroll to bottom */}
       <div className="flex bg-[#242424] z-100 w-full fixed bottom-0 p-4 border-t min-h-[8vh] border-gray-300">
         <input
           type="text"
