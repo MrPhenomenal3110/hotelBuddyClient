@@ -1,8 +1,5 @@
-import dotenv from 'dotenv'
-
 const sendMessage = async (message) => {
-    // dotenv.config({path:'./.env'});
-    const response = await fetch(process.env.SERVER_URL, {
+    const response = await fetch('https://api-hotelbuddy.onrender.com/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
