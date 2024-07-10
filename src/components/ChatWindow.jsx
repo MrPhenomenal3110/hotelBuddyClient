@@ -6,10 +6,12 @@ const ChatWindow = ({ threadId, messages, setMessages }) => {
   const [userInput, setUserInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     // Scroll to the bottom of the messages container
     scrollToBottom();
+    inputRef.current.focus();
   }, [messages]); // Trigger effect whenever messages change
 
   const scrollToBottom = () => {
@@ -48,7 +50,7 @@ const ChatWindow = ({ threadId, messages, setMessages }) => {
   };
 
   return (
-    <div className="w-full relative top-[8vh] flex flex-col h-[83vh] overflow-y-auto flex-1">
+    <div className="w-full relative top-[8dvh] flex flex-col h-[83dvh] overflow-y-auto flex-1">
       {messages.map((msg) => (
         msg.role === 'user' ? (
           <div className="p-4 h-fit self-end" key={msg.id}>
@@ -61,8 +63,9 @@ const ChatWindow = ({ threadId, messages, setMessages }) => {
         )
       ))}
       <div ref={messagesEndRef} /> {/* Ref to scroll to bottom */}
-      <div className="flex bg-[#242424] z-100 w-full fixed bottom-0 p-4 border-t min-h-[8vh] border-gray-300">
+      <div className="flex bg-[#242424] z-[100] w-full fixed bottom-0 p-4 border-t min-h-[8vh] border-gray-300">
         <input
+          ref={inputRef}
           type="text"
           value={userInput}
           placeholder='Enter your input'
